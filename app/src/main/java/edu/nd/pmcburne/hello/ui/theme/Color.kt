@@ -2,6 +2,12 @@ package edu.nd.pmcburne.hello.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
+val UVANavy = Color(0xFF232D4B)
+val UVAOrange = Color(0xFFE57200)
+val UVANavyLight = Color(0xFF3D4F7C)
+val White = Color(0xFFFFFFFF)
+val LightGray = Color(0xFFF5F5F5)
+
 val Purple80 = Color(0xFFD0BCFF)
 val PurpleGrey80 = Color(0xFFCCC2DC)
 val Pink80 = Color(0xFFEFB8C8)

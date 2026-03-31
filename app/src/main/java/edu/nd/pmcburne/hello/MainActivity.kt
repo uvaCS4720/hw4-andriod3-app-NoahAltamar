@@ -14,9 +14,13 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -24,7 +28,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
@@ -32,6 +38,9 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import edu.nd.pmcburne.hello.ui.theme.MyApplicationTheme
+import edu.nd.pmcburne.hello.ui.theme.UVANavy
+import edu.nd.pmcburne.hello.ui.theme.UVAOrange
+import edu.nd.pmcburne.hello.ui.theme.White
 
 class MainActivity : ComponentActivity() {
     private val viewModel by viewModels<MainViewModel>()
@@ -41,9 +50,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             MyApplicationTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    MainScreen(viewModel, modifier = Modifier.padding(innerPadding))
-                }
+                MainScreen(viewModel)
             }
         }
     }
@@ -65,53 +72,97 @@ fun MainScreen(
         position = CameraPosition.fromLatLngZoom(uvaLocation, 15f)
     }
 
-    Column(modifier = modifier.fillMaxSize()) {
-        ExposedDropdownMenuBox(
-            expanded = expanded,
-            onExpandedChange = { expanded = !expanded },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp)
-        ) {
-            TextField(
-                value = selectedTag,
-                onValueChange = {},
-                readOnly = true,
-                label = { Text("Filter by Tag") },
-                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                modifier = Modifier
-                    .menuAnchor()
-                    .fillMaxWidth()
-            )
-            ExposedDropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false }
-            ) {
-                allTags.forEach { tag ->
-                    DropdownMenuItem(
-                        text = { Text(tag) },
-                        onClick = {
-                            viewModel.selectTag(tag)
-                            expanded = false
-                        }
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        text = "Campus Maps",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp,
+                        color = White
                     )
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = UVANavy
+                )
+            )
+        }
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+        ) {
+            ExposedDropdownMenuBox(
+                expanded = expanded,
+                onExpandedChange = { expanded = !expanded },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp, vertical = 8.dp)
+            ) {
+                TextField(
+                    value = selectedTag,
+                    onValueChange = {},
+                    readOnly = true,
+                    label = {
+                        Text(
+                            "Filter by Tag",
+                            color = UVANavy
+                        )
+                    },
+                    trailingIcon = {
+                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+                    },
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = White,
+                        unfocusedContainerColor = White,
+                        focusedIndicatorColor = UVAOrange,
+                        unfocusedIndicatorColor = UVANavy,
+                        focusedTextColor = UVANavy,
+                        unfocusedTextColor = UVANavy,
+                        focusedTrailingIconColor = UVAOrange,
+                        unfocusedTrailingIconColor = UVANavy
+                    ),
+                    modifier = Modifier
+                        .menuAnchor()
+                        .fillMaxWidth()
+                )
+                ExposedDropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }
+                ) {
+                    allTags.forEach { tag ->
+                        DropdownMenuItem(
+                            text = {
+                                Text(
+                                    text = tag,
+                                    color = UVANavy
+                                )
+                            },
+                            onClick = {
+                                viewModel.selectTag(tag)
+                                expanded = false
+                            }
+                        )
+                    }
                 }
             }
-        }
 
-        Box(modifier = Modifier.fillMaxSize()) {
-            GoogleMap(
-                modifier = Modifier.fillMaxSize(),
-                cameraPositionState = cameraPositionState
-            ) {
-                filteredPlacemarks.forEach { placemark ->
-                    Marker(
-                        state = MarkerState(
-                            position = LatLng(placemark.latitude, placemark.longitude)
-                        ),
-                        title = placemark.name,
-                        snippet = placemark.description
-                    )
+            Box(modifier = Modifier.fillMaxSize()) {
+                GoogleMap(
+                    modifier = Modifier.fillMaxSize(),
+                    cameraPositionState = cameraPositionState
+                ) {
+                    filteredPlacemarks.forEach { placemark ->
+                        Marker(
+                            state = MarkerState(
+                                position = LatLng(placemark.latitude, placemark.longitude)
+                            ),
+                            title = placemark.name,
+                            snippet = placemark.description
+                        )
+                    }
                 }
             }
         }
